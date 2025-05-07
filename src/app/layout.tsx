@@ -10,9 +10,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="fr">
       <body>
-        <div className="background-container">
-          {children}
-        </div>
+        {children}
       </body>
     </html>
   )
