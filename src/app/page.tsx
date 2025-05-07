@@ -5,7 +5,6 @@ import Image from "next/image";
 import ScrollVideoPlayer from '@/components/ScrollVideoPlayer';
 
 export default function Home() {
-  const [showMore, setShowMore] = useState(false);
   const [showFixedFooter, setShowFixedFooter] = useState(false);
 
   // Effet pour détecter la fin du défilement
@@ -79,7 +78,7 @@ export default function Home() {
       className={buttonClass}
       href="mailto:nathalyio@hotmail.com"
     >
-      Réserver un cours d'essai
+      Réserver un cours d&apos;essai
     </a>
     
     <a
@@ -210,7 +209,7 @@ export default function Home() {
           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
         </svg>
       </div>
-      <p className="font-light text-base">Premier cours d'essai gratuit</p>
+      <p className="font-light text-base">Premier cours d&apos;essai gratuit</p>
     </div>
     
     <div className="flex items-center">
@@ -261,7 +260,7 @@ export default function Home() {
       >
         {/* Photo */}
         <div className="relative h-64 w-full">
-          <img
+          <Image
             src={prof.img}
             alt={prof.name}
             className="w-full h-full object-cover"
@@ -349,7 +348,7 @@ export default function Home() {
   {/* Titre élégant et minimaliste */}
   <div className="text-center mb-10">
     <h3 className="text-3xl font-extrabold uppercase tracking-wide">
-      L'approche "Les Ailes"
+      L&apos;approche &quot;Les Ailes&quot;
     </h3>
     <div className="mt-3 h-px w-16 bg-white/30 mx-auto"></div>
   </div>
@@ -361,7 +360,7 @@ export default function Home() {
         <span className="text-sm font-bold">1</span>
       </div>
       <p className="text-base font-light leading-relaxed">
-        Le yoga s'adresse à l'être dans sa globalité. Nos séances conviennent à tous, quel que soit votre niveau ou votre âge, pour retrouver vitalité, équilibre et harmonie dans votre quotidien.
+        Le yoga s&apos;adresse à l&apos;être dans sa globalité. Nos séances conviennent à tous, quel que soit votre niveau ou votre âge, pour retrouver vitalité, équilibre et harmonie dans votre quotidien.
       </p>
     </div>
     
@@ -370,7 +369,7 @@ export default function Home() {
         <span className="text-sm font-bold">2</span>
       </div>
       <p className="text-base font-light leading-relaxed">
-        Les postures (asanas) pratiquées lors de nos cours permettent de cultiver harmonieusement force, souplesse, mobilité et équilibre. Nous portons une attention particulière à la respiration et à l'écoute du corps.
+        Les postures (asanas) pratiquées lors de nos cours permettent de cultiver harmonieusement force, souplesse, mobilité et équilibre. Nous portons une attention particulière à la respiration et à l&apos;écoute du corps.
       </p>
     </div>
     
@@ -379,7 +378,7 @@ export default function Home() {
         <span className="text-sm font-bold">3</span>
       </div>
       <p className="text-base font-light leading-relaxed">
-        Notre enseignement s'inscrit dans la tradition du Hatha Yoga selon l'enseignement de Sri Mahesh, où la pratique est adaptée à chacun dans le respect de ses possibilités et de ses limites.
+        Notre enseignement s&apos;inscrit dans la tradition du Hatha Yoga selon l&apos;enseignement de Sri Mahesh, où la pratique est adaptée à chacun dans le respect de ses possibilités et de ses limites.
       </p>
     </div>
   </div>
@@ -402,7 +401,7 @@ export default function Home() {
       {showFixedFooter && (
         <footer className="fixed bottom-0 left-0 right-0 w-full text-center text-sm py-6 bg-black/70 backdrop-blur-sm z-30 transition-opacity duration-300 ease-in-out">
           <p>Professeurs formés par la Fédération Française de Hatha Yoga</p>
-          <p className="mt-1">selon l'enseignement de Sri Mahesh</p>
+          <p className="mt-1">selon l&apos;enseignement de Sri Mahesh</p>
         </footer>
       )}
     </div>
