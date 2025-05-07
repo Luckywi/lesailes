@@ -324,7 +324,8 @@ const ScrollVideoPlayer = ({
           objectFit: 'cover',
           opacity: firstFrameLoaded ? 1 : 0.3,
           transition: 'opacity 0.5s ease',
-          zIndex: -1
+          zIndex: -1,
+          filter: 'brightness(80%)'
         }}
       />
       
