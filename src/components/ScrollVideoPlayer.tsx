@@ -7,6 +7,7 @@ interface ScrollVideoPlayerProps {
   width?: number;
   height?: number;
   className?: string;
+  frameCount?: number; // Nombre total de frames disponibles
 }
 
 const ScrollVideoPlayer = ({
@@ -14,20 +15,22 @@ const ScrollVideoPlayer = ({
   width = 1280,
   height = 720,
   className = '',
+  frameCount = 200, // Nombre par défaut de frames, à ajuster selon votre cas
 }: ScrollVideoPlayerProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | null>(null);
   
-  const [frames, setFrames] = useState<string[]>([]);
   const [loadedImages, setLoadedImages] = useState<HTMLImageElement[]>([]);
   const [targetFrame, setTargetFrame] = useState(0);
   const [currentFrame, setCurrentFrame] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const [firstFrameLoaded, setFirstFrameLoaded] = useState(false);
   const [viewport, setViewport] = useState({ width: 0, height: 0 });
+
+  // Extraire le nom de base de la vidéo pour construire les chemins de frames
+  const videoName = videoSrc.split('/').pop()?.split('.')[0] || 'background-video';
 
   // Détecter la taille de l'écran
   useEffect(() => {
@@ -49,45 +52,16 @@ const ScrollVideoPlayer = ({
     };
   }, []);
 
-  // Extraction des frames
+  // Charger les frames pré-générées
   useEffect(() => {
-    const extractFrames = async () => {
-      try {
-        setLoading(true);
-        
-        const response = await fetch('/api/extract-frames', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ videoPath: videoSrc }),
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Erreur lors de l'extraction: ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.error) {
-          throw new Error(data.error);
-        }
-        
-        setFrames(data.frames);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Erreur inconnue');
-        console.error('Erreur:', err);
-      }
-    };
+    // Construire les chemins des frames
+    const framePaths = Array.from({ length: frameCount }, (_, i) => {
+      // Formater le numéro avec des zéros en préfixe (0001, 0002, etc.)
+      const frameNumber = String(i + 1).padStart(4, '0');
+      return `/frames/${videoName}/frame-${frameNumber}.jpg`;
+    });
 
-    extractFrames();
-  }, [videoSrc]);
-
-  // Préchargement prioritaire du premier frame
-  useEffect(() => {
-    if (frames.length === 0) return;
-
-    // Charger d'abord le premier frame
+    // Précharger d'abord la première frame
     const firstImg = new Image();
     firstImg.onload = () => {
       const images = [firstImg];
@@ -102,55 +76,47 @@ const ScrollVideoPlayer = ({
           ctx.drawImage(firstImg, 0, 0, canvas.width, canvas.height);
         }
       }
-    };
-    firstImg.src = frames[0];
 
-  }, [frames]);
+      // Précharger les autres frames
+      let loadedCount = 1;
+      const restImages = Array(frameCount - 1).fill(null);
 
-  // Préchargement des autres frames après le premier frame
-  useEffect(() => {
-    if (frames.length <= 1 || !firstFrameLoaded) return;
-
-    const images = [...loadedImages]; // Commencer avec le premier frame déjà chargé
-    let loadedCount = 1;
-
-    const onImageLoad = () => {
-      loadedCount++;
-      const loadingProgress = (loadedCount / frames.length) * 100;
-      setProgress(loadingProgress);
-      
-      // Actualiser progressivement les images chargées
-      if (loadedCount % 5 === 0 || loadedCount === frames.length) {
-        setLoadedImages([...images]);
-      }
-      
-      if (loadedCount === frames.length) {
-        setLoading(false);
-      }
-    };
-
-    // Charger tous les autres frames (commence à 1 car le premier est déjà chargé)
-    for (let i = 1; i < frames.length; i++) {
-      const img = new Image();
-      img.onload = onImageLoad;
-      img.onerror = () => {
-        console.error(`Erreur lors du chargement de l'image: ${frames[i]}`);
-        onImageLoad();
-      };
-      img.src = frames[i];
-      images[i] = img;
-    }
-
-    return () => {
-      // Nettoyage
-      for (let i = 1; i < images.length; i++) {
-        if (images[i]) {
-          images[i].onload = null;
-          images[i].onerror = null;
+      const onImageLoad = () => {
+        loadedCount++;
+        const loadingProgress = (loadedCount / frameCount) * 100;
+        setProgress(loadingProgress);
+        
+        // Actualiser progressivement les images chargées
+        if (loadedCount % 5 === 0 || loadedCount === frameCount) {
+          setLoadedImages([firstImg, ...restImages.filter(Boolean)]);
         }
+        
+        if (loadedCount === frameCount) {
+          setLoading(false);
+        }
+      };
+
+      // Commencer à charger les frames restantes
+      for (let i = 1; i < frameCount; i++) {
+        const img = new Image();
+        img.onload = onImageLoad;
+        img.onerror = () => {
+          console.error(`Erreur lors du chargement de l'image: ${framePaths[i]}`);
+          onImageLoad();
+        };
+        img.src = framePaths[i];
+        restImages[i-1] = img;
       }
     };
-  }, [frames, firstFrameLoaded, loadedImages]);
+    
+    firstImg.onerror = () => {
+      console.error(`Erreur lors du chargement de la première image: ${framePaths[0]}`);
+      setLoading(false);
+    };
+    
+    firstImg.src = framePaths[0];
+    
+  }, [videoName, frameCount]);
 
   // Animation fluide
   useEffect(() => {
@@ -168,6 +134,8 @@ const ScrollVideoPlayer = ({
       
       // Calculer les dimensions pour couvrir tout l'écran (cover)
       const img = loadedImages[frameIndex];
+      if (!img.complete) return;
+      
       const imgRatio = img.width / img.height;
       const canvasRatio = canvas.width / canvas.height;
       
@@ -301,12 +269,6 @@ const ScrollVideoPlayer = ({
             </div>
             <div className="mt-1 text-xs">{Math.round(progress)}%</div>
           </div>
-        </div>
-      )}
-      
-      {error && (
-        <div className="error-message p-4 bg-red-500/70 rounded-lg text-white fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
-          Erreur: {error}
         </div>
       )}
       
