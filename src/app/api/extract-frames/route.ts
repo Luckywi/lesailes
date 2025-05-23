@@ -54,7 +54,7 @@ export async function POST(request: Request) {
     const frames = await extractFrames({
       videoPath: absoluteVideoPath,
       outputDir,
-      frameRate: 24,
+      frameRate: 48,
     });
     
     // Convertir les chemins absolus en chemins relatifs pour le client

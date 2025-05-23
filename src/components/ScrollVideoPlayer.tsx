@@ -7,7 +7,7 @@ interface ScrollVideoPlayerProps {
   width?: number;
   height?: number;
   className?: string;
-  frameCount?: number; // Nombre total de frames disponibles
+  frameCount?: number;
 }
 
 const ScrollVideoPlayer = ({
@@ -15,11 +15,12 @@ const ScrollVideoPlayer = ({
   width = 1280,
   height = 720,
   className = '',
-  frameCount = 200, // Nombre par défaut de frames, à ajuster selon votre cas
+  frameCount = 240, // Optimisé pour 240 frames
 }: ScrollVideoPlayerProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | null>(null);
+  const lastScrollTime = useRef(0);
   
   const [loadedImages, setLoadedImages] = useState<HTMLImageElement[]>([]);
   const [targetFrame, setTargetFrame] = useState(0);
@@ -41,10 +42,7 @@ const ScrollVideoPlayer = ({
       });
     };
 
-    // Initialiser
     updateViewport();
-
-    // Mettre à jour lors du redimensionnement
     window.addEventListener('resize', updateViewport);
     
     return () => {
@@ -52,61 +50,74 @@ const ScrollVideoPlayer = ({
     };
   }, []);
 
-  // Charger les frames pré-générées
+  // Charger les frames pré-générées avec optimisation
   useEffect(() => {
-    // Construire les chemins des frames
     const framePaths = Array.from({ length: frameCount }, (_, i) => {
-      // Formater le numéro avec des zéros en préfixe (0001, 0002, etc.)
       const frameNumber = String(i + 1).padStart(4, '0');
       return `/frames/${videoName}/frame-${frameNumber}.jpg`;
     });
 
-    // Précharger d'abord la première frame
+    // Précharger la première frame
     const firstImg = new Image();
     firstImg.onload = () => {
       const images = [firstImg];
       setLoadedImages(images);
       setFirstFrameLoaded(true);
       
-      // Dessiner le premier frame immédiatement
+      // Dessiner immédiatement la première frame
       if (canvasRef.current) {
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          ctx.drawImage(firstImg, 0, 0, canvas.width, canvas.height);
-        }
+        drawFrame(0, [firstImg], canvasRef.current);
       }
 
-      // Précharger les autres frames
+      // Charger les autres frames par lots pour éviter de surcharger le navigateur
       let loadedCount = 1;
       const restImages = Array(frameCount - 1).fill(null);
+      const batchSize = 10; // Charger par lots de 10
 
-      const onImageLoad = () => {
-        loadedCount++;
-        const loadingProgress = (loadedCount / frameCount) * 100;
-        setProgress(loadingProgress);
+      const loadBatch = (startIndex: number) => {
+        const endIndex = Math.min(startIndex + batchSize, frameCount);
         
-        // Actualiser progressivement les images chargées
-        if (loadedCount % 5 === 0 || loadedCount === frameCount) {
-          setLoadedImages([firstImg, ...restImages.filter(Boolean)]);
+        for (let i = startIndex; i < endIndex; i++) {
+          if (i === 0) continue; // Déjà chargée
+          
+          const img = new Image();
+          img.onload = () => {
+            loadedCount++;
+            const loadingProgress = (loadedCount / frameCount) * 100;
+            setProgress(loadingProgress);
+            
+            // Mettre à jour le tableau d'images
+            restImages[i - 1] = img;
+            
+            // Mettre à jour l'état toutes les 5 images
+            if (loadedCount % 5 === 0 || loadedCount === frameCount) {
+              setLoadedImages([firstImg, ...restImages.filter(Boolean)]);
+            }
+            
+            if (loadedCount === frameCount) {
+              setLoading(false);
+            }
+          };
+          
+          img.onerror = () => {
+            console.error(`Erreur lors du chargement: ${framePaths[i]}`);
+            loadedCount++;
+            if (loadedCount === frameCount) {
+              setLoading(false);
+            }
+          };
+          
+          img.src = framePaths[i];
         }
         
-        if (loadedCount === frameCount) {
-          setLoading(false);
+        // Charger le lot suivant après un délai
+        if (endIndex < frameCount) {
+          setTimeout(() => loadBatch(endIndex), 50);
         }
       };
-
-      // Commencer à charger les frames restantes
-      for (let i = 1; i < frameCount; i++) {
-        const img = new Image();
-        img.onload = onImageLoad;
-        img.onerror = () => {
-          console.error(`Erreur lors du chargement de l'image: ${framePaths[i]}`);
-          onImageLoad();
-        };
-        img.src = framePaths[i];
-        restImages[i-1] = img;
-      }
+      
+      // Commencer le chargement par lots
+      loadBatch(1);
     };
     
     firstImg.onerror = () => {
@@ -118,86 +129,77 @@ const ScrollVideoPlayer = ({
     
   }, [videoName, frameCount]);
 
-  // Animation fluide
+  // Fonction optimisée pour dessiner les frames
+  const drawFrame = (frameIndex: number, images: HTMLImageElement[], canvas: HTMLCanvasElement) => {
+    const ctx = canvas.getContext('2d');
+    if (!ctx || frameIndex < 0 || frameIndex >= images.length || !images[frameIndex]) return;
+    
+    const img = images[frameIndex];
+    if (!img.complete) return;
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Calculer les dimensions pour couvrir tout l'écran (cover)
+    const imgRatio = img.width / img.height;
+    const canvasRatio = canvas.width / canvas.height;
+    
+    let drawWidth, drawHeight, offsetX, offsetY;
+    
+    if (imgRatio > canvasRatio) {
+      drawHeight = canvas.height;
+      drawWidth = img.width * (canvas.height / img.height);
+      offsetX = (canvas.width - drawWidth) / 2;
+      offsetY = 0;
+    } else {
+      drawWidth = canvas.width;
+      drawHeight = img.height * (canvas.width / img.width);
+      offsetX = 0;
+      offsetY = (canvas.height - drawHeight) / 2;
+    }
+    
+    ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+  };
+
+  // Animation fluide optimisée
   useEffect(() => {
     if (!canvasRef.current || loadedImages.length === 0) return;
     
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
     
-    // Dessiner la frame actuelle
-    const drawFrame = (frameIndex: number) => {
-      if (!ctx || frameIndex < 0 || frameIndex >= loadedImages.length || !loadedImages[frameIndex]) return;
-      
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // Calculer les dimensions pour couvrir tout l'écran (cover)
-      const img = loadedImages[frameIndex];
-      if (!img.complete) return;
-      
-      const imgRatio = img.width / img.height;
-      const canvasRatio = canvas.width / canvas.height;
-      
-      let drawWidth, drawHeight, offsetX, offsetY;
-      
-      if (imgRatio > canvasRatio) {
-        // Image plus large que le canvas - hauteur ajustée
-        drawHeight = canvas.height;
-        drawWidth = img.width * (canvas.height / img.height);
-        offsetX = (canvas.width - drawWidth) / 2;
-        offsetY = 0;
-      } else {
-        // Image plus haute que le canvas - largeur ajustée
-        drawWidth = canvas.width;
-        drawHeight = img.height * (canvas.width / img.width);
-        offsetX = 0;
-        offsetY = (canvas.height - drawHeight) / 2;
-      }
-      
-      ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
-    };
-    
-    // Animation fluide entre les frames
     const animateToTargetFrame = () => {
-      if (currentFrame === targetFrame) {
+      if (Math.abs(currentFrame - targetFrame) < 0.1) {
+        setCurrentFrame(targetFrame);
         animationRef.current = null;
         return;
       }
       
-      // Calculer le prochain frame avec une interpolation douce
+      // Interpolation plus fluide
       const direction = targetFrame > currentFrame ? 1 : -1;
-      const speed = Math.max(0.1, Math.abs(targetFrame - currentFrame) * 0.1);
+      const distance = Math.abs(targetFrame - currentFrame);
+      const speed = Math.max(0.3, distance * 0.2); // Vitesse améliorée
       const nextFrame = currentFrame + direction * speed;
       
-      // Vérifier si nous avons atteint ou dépassé la cible
       const hasReachedTarget = 
         (direction > 0 && nextFrame >= targetFrame) || 
         (direction < 0 && nextFrame <= targetFrame);
       
-      // Mettre à jour le frame courant
-      const newFrame = hasReachedTarget 
-        ? targetFrame 
-        : nextFrame;
-      
+      const newFrame = hasReachedTarget ? targetFrame : nextFrame;
       setCurrentFrame(newFrame);
       
-      // Dessiner le frame actuel
+      // Dessiner la frame
       const frameIndex = Math.min(
         Math.max(Math.round(newFrame), 0),
         loadedImages.length - 1
       );
       
-      drawFrame(frameIndex);
+      drawFrame(frameIndex, loadedImages, canvas);
       
-      // Continuer l'animation si nécessaire
       if (!hasReachedTarget) {
         animationRef.current = requestAnimationFrame(animateToTargetFrame);
       }
     };
     
-    // Démarrer l'animation si nécessaire
-    if (animationRef.current === null && currentFrame !== targetFrame) {
+    if (animationRef.current === null && Math.abs(currentFrame - targetFrame) > 0.1) {
       animationRef.current = requestAnimationFrame(animateToTargetFrame);
     }
     
@@ -209,13 +211,16 @@ const ScrollVideoPlayer = ({
     };
   }, [loadedImages, currentFrame, targetFrame]);
 
-  // Observer le défilement - Branchement direct
+  // Observer le défilement optimisé
   useEffect(() => {
     if (loadedImages.length === 0) return;
 
-    // Fonction pour calculer la frame en fonction du défilement
     const handleScroll = () => {
-      // Calcul simple : fraction de la page défilée
+      // Limitation de la fréquence à 60fps
+      const now = performance.now();
+      if (now - lastScrollTime.current < 16) return;
+      lastScrollTime.current = now;
+      
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
       const docHeight = Math.max(
         document.body.scrollHeight, 
@@ -225,33 +230,42 @@ const ScrollVideoPlayer = ({
         document.documentElement.offsetHeight
       ) - window.innerHeight;
       
-      const scrollFraction = Math.max(0, Math.min(scrollTop / docHeight, 1));
+      // Calculer la fraction de défilement
+      let scrollFraction = Math.max(0, Math.min(scrollTop / docHeight, 1));
       
-      // Calculer l'index de frame correspondant
-      const frameIndex = scrollFraction * (loadedImages.length - 1);
+      // Mapper la fraction de défilement aux frames (0 à frameCount-1)
+      // Frame 1 (index 0) au début, frame 240 (index 239) à la fin
+      let frameIndex = scrollFraction * (frameCount - 1);
       
-      // Mettre à jour la frame cible
+      // S'assurer que la frame reste dans les limites
+      frameIndex = Math.max(0, Math.min(frameIndex, frameCount - 1));
+      
+      // Si on a atteint la dernière frame et qu'on continue à scroller,
+      // maintenir la dernière frame
+      if (scrollFraction >= 1) {
+        frameIndex = frameCount - 1;
+      }
+      
       setTargetFrame(frameIndex);
     };
     
-    // Appeler une fois pour initialiser
+    // Initialiser avec la première frame
     handleScroll();
     
-    // Ajouter l'écouteur d'événement
+    // Ajouter l'écouteur avec throttling
     window.addEventListener('scroll', handleScroll, { passive: true });
     
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [loadedImages]);
+  }, [loadedImages, frameCount]);
 
   return (
     <div 
       ref={containerRef}
       className={`scroll-video-player ${className}`}
       style={{ 
-        // L'élément doit prendre de la place pour créer une zone de défilement
-        height: '500vh', // 5x la hauteur de l'écran pour avoir suffisamment d'espace de défilement
+        height: '500vh', // Hauteur pour permettre le défilement
         position: 'relative',
         width: '100%',
         zIndex: 0
@@ -260,14 +274,14 @@ const ScrollVideoPlayer = ({
       {loading && (
         <div className="loading-indicator p-4 bg-black/50 rounded-lg text-white fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
           <div className="flex flex-col items-center">
-            <div className="mb-2">Chargement des frames...</div>
+            <div className="mb-2">Chargement des frames... ({Math.round(progress)}%)</div>
             <div className="w-48 h-2 bg-gray-700 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-green-500"
-                style={{ width: `${progress}%`, transition: 'width 0.3s ease' }}
+                className="h-full bg-green-500 transition-all duration-300"
+                style={{ width: `${progress}%` }}
               />
             </div>
-            <div className="mt-1 text-xs">{Math.round(progress)}%</div>
+            <div className="mt-1 text-xs">{loadedImages.length}/{frameCount} frames</div>
           </div>
         </div>
       )}
@@ -291,16 +305,18 @@ const ScrollVideoPlayer = ({
         }}
       />
       
-      {/* Indicateur de progression discret */}
-      {!loading && (
-        <div className="fixed bottom-4 left-0 right-0 mx-auto w-32 h-2 bg-white/20 rounded-full overflow-hidden z-40">
+      {/* Indicateur de progression amélioré */}
+      {!loading && loadedImages.length > 0 && (
+        <div className="fixed bottom-4 left-0 right-0 mx-auto w-48 h-2 bg-white/20 rounded-full overflow-hidden z-40">
           <div 
-            className="h-full bg-white/70"
+            className="h-full bg-white/70 transition-all duration-100"
             style={{ 
-              width: `${(currentFrame / (loadedImages.length - 1)) * 100}%`,
-              transition: 'width 0.1s ease-out'
+              width: `${(currentFrame / (frameCount - 1)) * 100}%`
             }}
           />
+          <div className="absolute -top-6 left-0 right-0 text-center text-xs text-white/70">
+            Frame {Math.round(currentFrame) + 1}/{frameCount}
+          </div>
         </div>
       )}
     </div>

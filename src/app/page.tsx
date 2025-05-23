@@ -240,7 +240,7 @@ export default function Home() {
       {
         name: 'Nathalie Fauconnier',
         role: 'Cours du mercredi',
-        img: '/nathalie-placeholder.jpg',
+        img: '/lesailes.png',
         email: 'nathalyio@hotmail.com',
         phone: '06 77 48 18 03',
         bio: "Enseignante de Yoga formée selon l'enseignement de Sri Mahesh au sein de la FFHY. Pratiquante depuis plus de 15 ans, Nathalie vous accompagne avec bienveillance dans votre découverte ou approfondissement du Hatha Yoga."
@@ -248,7 +248,7 @@ export default function Home() {
       {
         name: 'Bernard Garnier',
         role: 'Cours du lundi',
-        img: '/bernard-placeholder.jpg',
+        img: '/lesailes.png',
         email: 'garnierbd@gmail.com',
         phone: '06 95 31 10 88',
         bio: "Enseignant de Yoga formé selon l'enseignement de Sri Mahesh au sein de la FFHY. Bernard partage sa passion pour le Hatha Yoga dans un environnement respectueux du rythme et des capacités de chacun."
@@ -263,13 +263,9 @@ export default function Home() {
           <Image
             src={prof.img}
             alt={prof.name}
+            width={800}
+            height={400}
             className="w-full h-full object-cover"
-            onError={(e) => {
-              e.currentTarget.src = `https://via.placeholder.com/800x400?text=${prof.name.replace(
-                / /g,
-                '+'
-              )}`;
-            }}
           />
           <div className="absolute inset-0 bg-black/30"></div>
         </div>
