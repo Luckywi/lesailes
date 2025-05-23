@@ -231,7 +231,7 @@ const ScrollVideoPlayer = ({
       ) - window.innerHeight;
       
       // Calculer la fraction de défilement
-      let scrollFraction = Math.max(0, Math.min(scrollTop / docHeight, 1));
+      const scrollFraction = Math.max(0, Math.min(scrollTop / docHeight, 1));
       
       // Mapper la fraction de défilement aux frames (0 à frameCount-1)
       // Frame 1 (index 0) au début, frame 240 (index 239) à la fin
