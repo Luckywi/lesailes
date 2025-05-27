@@ -49,11 +49,11 @@ export default function Home() {
               {/* Boutons en colonne avec style uniformisé */}
               <div className="flex flex-col gap-4 w-full">
                 <a
-                  className={buttonClass}
-                  href="mailto:nathalyio@hotmail.com"
-                >
-                  Réserver un cours d&apos;essai
-                </a>
+  className={buttonClass}
+  href="mailto:nathalyio@hotmail.com,garnierbd@gmail.com?subject=Demande de cours d'essai&body=Bonjour,%0D%0A%0D%0AJ'aimerais réserver un cours d'essai.%0D%0A%0D%0APour les cours avec Nathalie le mercredi :%0D%0A- Premier cours (18h20 – 19h35) : ____/____ si il vous reste de la place%0D%0A- 2e cours (19h45 – 21h00) : ____/____ si il vous reste de la place%0D%0A%0D%0APour les cours avec Bernard le lundi :%0D%0A- Premier cours (18h20 – 19h35) : ____/____ si il vous reste de la place%0D%0A- 2e cours (19h45 – 21h00) : ____/____ si il vous reste de la place%0D%0A%0D%0A(Merci de compléter les dates souhaitées et d'indiquer vos informations personnelles : nom, prénom, âge, numéro de téléphone)%0D%0A%0D%0ACordialement"
+>
+  Réserver un cours d&apos;essai
+</a>
                 
                 <a
                   className={buttonClass}

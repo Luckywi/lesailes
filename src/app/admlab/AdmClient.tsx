@@ -3,7 +3,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
 import { ThreeScene } from '@/components/ThreeScene';
 
 export default function AdmClient() {

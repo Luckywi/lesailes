@@ -1,222 +1,212 @@
-'use client'
+import { Metadata } from 'next';
+import BernardClient from './BernardClient';
 
-import Image from "next/image";
-import Link from "next/link";
-import { ThreeScene } from '@/components/ThreeScene';
-import { Footer } from '@/components/Footer'
+export const metadata: Metadata = {
+  title: "Bernard Garnier | Professeur de Hatha Yoga à Lyon 6 - Les Ailes",
+  description: "Découvrez Bernard Garnier, professeur certifié FFHY de Hatha Yoga à Lyon 6. Cours du lundi soir (18h20-19h35 et 19h45-21h00) au 13 rue Curie. Formation complète, approche bienveillante adaptée à tous les niveaux.",
+  keywords: [
+    "Bernard Garnier yoga Lyon",
+    "professeur Hatha Yoga Lyon 6", 
+    "cours yoga lundi Lyon", 
+    "yoga Lyon 6ème arrondissement",
+    "professeur yoga certifié FFHY",
+    "Hatha Yoga Sri Mahesh Lyon",
+    "cours yoga débutant Lyon",
+    "yoga seniors Lyon",
+    "méditation guidée Lyon",
+    "pranayama Lyon",
+    "association Les Ailes",
+    "13 rue Curie Lyon",
+    "yoga Lyon Curie",
+    "formation yoga FFHY",
+    "yoga bienveillant Lyon",
+    "cours essai yoga Lyon"
+  ].join(", "),
+  openGraph: {
+    title: 'Bernard Garnier | Professeur de Hatha Yoga à Lyon 6',
+    description: 'Professeur certifié FFHY proposant des cours de Hatha Yoga le lundi soir à Lyon 6. Approche bienveillante adaptée à tous les niveaux.',
+    images: [
+      {
+        url: '/Bernard.png',
+        width: 800,
+        height: 600,
+        alt: 'Bernard Garnier - Professeur de Hatha Yoga à Lyon',
+      },
+    ],
+  },
+  alternates: {
+    canonical: "https://lesailes.fr/bernard",
+  }
+};
+
+// Données structurées JSON-LD pour Bernard en tant que personne
+const jsonLdPerson = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Bernard Garnier",
+  "jobTitle": "Professeur de Hatha Yoga",
+  "description": "Professeur certifié FFHY de Hatha Yoga, diplômé en 2023. Enseigne selon l'approche de Sri Mahesh dans une atmosphère bienveillante.",
+  "email": "garnierbd@gmail.com",
+  "telephone": "+33695311088",
+  "image": "https://lesailes.fr/Bernard.png",
+  "worksFor": {
+    "@type": "Organization",
+    "name": "Les Ailes",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "13 rue Curie",
+      "addressLocality": "Lyon",
+      "postalCode": "69006",
+      "addressCountry": "FR"
+    }
+  },
+  "hasCredential": [
+    {
+      "@type": "EducationalOccupationalCredential",
+      "name": "Diplôme FFHY - Professeur de Hatha Yoga",
+      "credentialCategory": "Certification professionnelle",
+      "dateEarned": "2023-09",
+      "educationalLevel": "Formation 360 heures",
+      "recognizedBy": {
+        "@type": "Organization",
+        "name": "Fédération Française de Hatha Yoga"
+      }
+    }
+  ],
+  "knowsAbout": [
+    "Hatha Yoga",
+    "Pranayama", 
+    "Méditation guidée",
+    "Yoga adapté aux seniors",
+    "Enseignement Sri Mahesh"
+  ],
+  "alumniOf": {
+    "@type": "Organization",
+    "name": "Fédération Française de Hatha Yoga"
+  }
+};
+
+// Données structurées pour les cours de Bernard
+const jsonLdCourse = {
+  "@context": "https://schema.org",
+  "@type": "Course",
+  "name": "Cours de Hatha Yoga avec Bernard Garnier",
+  "description": "Cours de Hatha Yoga selon l'enseignement de Sri Mahesh. Approche bienveillante adaptée à tous les niveaux, dans le respect du rythme individuel.",
+  "provider": {
+    "@type": "Organization",
+    "name": "Les Ailes",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "13 rue Curie",
+      "addressLocality": "Lyon",
+      "postalCode": "69006",
+      "addressCountry": "FR"
+    }
+  },
+  "instructor": {
+    "@type": "Person",
+    "name": "Bernard Garnier",
+    "telephone": "+33695311088",
+    "email": "garnierbd@gmail.com"
+  },
+  "courseSchedule": [
+    {
+      "@type": "Schedule",
+      "dayOfWeek": "Monday",
+      "startTime": "18:20",
+      "endTime": "19:35",
+      "scheduleTimezone": "Europe/Paris"
+    },
+    {
+      "@type": "Schedule", 
+      "dayOfWeek": "Monday",
+      "startTime": "19:45",
+      "endTime": "21:00",
+      "scheduleTimezone": "Europe/Paris"
+    }
+  ],
+  "location": {
+    "@type": "Place",
+    "name": "Les Ailes",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "13 rue Curie",
+      "addressLocality": "Lyon",
+      "postalCode": "69006",
+      "addressCountry": "FR"
+    }
+  },
+  "offers": {
+    "@type": "Offer",
+    "name": "Cours d'essai gratuit",
+    "description": "Premier cours d'essai gratuit pour découvrir l'approche de Bernard",
+    "price": "0",
+    "priceCurrency": "EUR"
+  }
+};
+
+// Données structurées pour les services de Bernard
+const jsonLdService = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "serviceType": "Yoga Instruction",
+  "name": "Cours de Hatha Yoga - Bernard Garnier",
+  "description": "Enseignement du Hatha Yoga selon l'approche Sri Mahesh. Cours adaptés à tous les niveaux avec une attention particulière portée au respect du rythme individuel.",
+  "provider": {
+    "@type": "Person",
+    "name": "Bernard Garnier",
+    "telephone": "+33695311088",
+    "email": "garnierbd@gmail.com"
+  },
+  "areaServed": {
+    "@type": "City",
+    "name": "Lyon"
+  },
+  "serviceOutput": {
+    "@type": "Service",
+    "name": "Amélioration du bien-être physique et mental par le yoga"
+  },
+  "additionalProperty": [
+    {
+      "@type": "PropertyValue",
+      "name": "Spécialité",
+      "value": "Hatha Yoga Sri Mahesh"
+    },
+    {
+      "@type": "PropertyValue", 
+      "name": "Niveau",
+      "value": "Tous niveaux - Débutants bienvenus"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "Approche",
+      "value": "Bienveillante et respectueuse du rythme individuel"
+    }
+  ]
+};
 
 export default function BernardPage() {
- const buttonClass = "py-3 text-center rounded-xl bg-white/10 hover:bg-white/20 text-sm font-medium tracking-wide transition-colors w-full block";
-
-
   return (
     <>
-      {/* Fond 3D */}
-      <ThreeScene modelPath="/Peacock.glb" />
-      
-      {/* Contenu */}
-      <main className="relative z-10 flex flex-col items-center text-white min-h-screen">
-        <div className="w-full max-w-md mx-auto px-4 pt-8">
-          
-          {/* Bouton retour */}
-          <div className="mb-6">
-            <Link 
-              href="/" 
-              className="inline-flex items-center text-white/80 hover:text-white transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Retour à l&apos;accueil
-            </Link>
-          </div>
-
-          {/* Photo et infos principales */}
-          <div className="bg-black/20 backdrop-blur-sm rounded-xl overflow-hidden w-full mb-6">
-            {/* Photo de profil */}
-            <div className="relative h-64 w-full">
-              <Image
-                src="/Bernard.png"
-                alt="Bernard Garnier"
-                width={800}
-                height={600}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-              
-              {/* Nom superposé */}
-              <div className="absolute bottom-4 left-4 right-4">
-                <h1 className="text-3xl font-bold mb-1">Bernard Garnier</h1>
-                <p className="text-lg font-light text-white/90">Professeur de Hatha Yoga</p>
-                <p className="text-sm text-white/80">Cours du lundi</p>
-              </div>
-            </div>
-
-            {/* Contact rapide */}
-            <div className="p-6">
-              <div className="flex flex-col gap-4 w-full">
-                <a
-                  href="mailto:garnierbd@gmail.com"
-                  className={buttonClass}
-                >
-                  Envoyer un email
-                </a>
-                <a
-                  href="tel:0695311088"
-                  className={buttonClass}
-                >
-                  Appeler Bernard
-                </a>
-              </div>
-            </div>
-          </div>
-
-          {/* Présentation */}
-          <div className="bg-black/25 backdrop-blur-sm rounded-2xl p-6 w-full mb-6">
-            <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold uppercase tracking-wide">
-                Présentation
-              </h3>
-              <div className="mt-3 h-px w-16 bg-white/30 mx-auto"></div>
-            </div>
-            
-            <div className="space-y-4 text-sm leading-relaxed">
-              <p>
-                Né le 25 novembre 1963, Bernard découvre le yoga en 2011 avec différents professeurs, 
-                notamment Jeanne de Joussineau qui marquera profondément son parcours. Il suit ses 
-                cours durant plus de 10 ans, développant une pratique régulière et approfondie.
-              </p>
-              
-              <p>
-                C&apos;est Jeanne qui l&apos;incite à entamer la formation de professeur de yoga de la 
-                Fédération Française de Hatha Yoga. Bernard suit cette formation rigoureuse de 
-                2019 à 2023 et obtient son diplôme FFHY en septembre 2023.
-              </p>
-
-              <p>
-                Depuis 2021, il enseigne le yoga en région lyonnaise pour diverses structures : 
-                association de retraités, comité d&apos;entreprise, salle du 6ème arrondissement de Lyon 
-                et MJC. Sa philosophie d&apos;enseignement repose sur le respect du rythme individuel 
-                et la création d&apos;une atmosphère chaleureuse et bienveillante.
-              </p>
-            </div>
-          </div>
-
-          {/* Formation et certifications */}
-          <div className="bg-black/25 backdrop-blur-sm rounded-2xl p-8 mb-6">
-            <div className="text-center mb-8">
-              <h3 className="text-3xl font-bold uppercase tracking-wide">Formation</h3>
-              <div className="mt-3 h-px w-16 bg-white/30 mx-auto"></div>
-            </div>
-            
-            <div className="space-y-6">
-              <div className="bg-white/5 rounded-xl p-6">
-                <h3 className="text-xl font-semibold mb-4 text-white">Parcours de formation</h3>
-                <div className="space-y-4">
-                  <div className="border-l-2 border-white/30 pl-4">
-                    <div className="text-sm text-white/70 mb-1">2019 - 2023</div>
-                    <h4 className="font-semibold text-white">Formation professeur de Hatha Yoga FFHY</h4>
-                    <p className="text-sm text-white/90 mt-2">
-                      Formation complète de 360 heures mêlant pratique et théorie, 
-                      ainsi qu&apos;une approche de la culture indienne. Diplômé en septembre 2023.
-                    </p>
-                  </div>
-                  
-                  <div className="border-l-2 border-white/30 pl-4">
-                    <div className="text-sm text-white/70 mb-1">2011 - 2023</div>
-                    <h4 className="font-semibold text-white">Formation avec Jeanne de Joussineau</h4>
-                    <p className="text-sm text-white/90 mt-2">
-                      Plus de 10 ans de pratique intensive avec Jeanne de Joussineau, 
-                      qui l&apos;accompagne dans son cheminement yogique et l&apos;encourage à devenir enseignant.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Approche pédagogique */}
-          <div className="bg-black/25 backdrop-blur-sm rounded-2xl p-6 w-full mb-6">
-            <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold uppercase tracking-wide">
-                Mon approche
-              </h3>
-              <div className="mt-3 h-px w-16 bg-white/30 mx-auto"></div>
-            </div>
-            
-            <div className="space-y-4">
-              <p className="text-sm leading-relaxed">
-                Ma philosophie d&apos;enseignement repose sur le respect du rythme de chacun. 
-                J&apos;aime créer une atmosphère chaleureuse où chacun peut progresser à son rythme, 
-                sans jugement ni compétition.
-              </p>
-
-              <div className="space-y-4">
-                <div className="bg-white/5 rounded-xl p-4">
-                  <h4 className="text-base font-semibold mb-2 text-white">Spécialités</h4>
-                  <ul className="space-y-1 text-xs">
-                    <li>• Hatha Yoga selon l&apos;enseignement de Sri Mahesh</li>
-                    <li>• Pranayama (techniques respiratoires)</li>
-                    <li>• Méditation guidée</li>
-                    <li>• Yoga adapté aux seniors</li>
-                  </ul>
-                </div>
-
-                <div className="bg-white/5 rounded-xl p-4">
-                  <h4 className="text-base font-semibold mb-2 text-white">Objectifs des cours</h4>
-                  <ul className="space-y-1 text-xs">
-                    <li>• Développer force et souplesse</li>
-                    <li>• Améliorer l&apos;équilibre et la posture</li>
-                    <li>• Apprendre à gérer le stress</li>
-                    <li>• Cultiver la paix intérieure</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Horaires de Bernard */}
-          <div className="bg-black/25 backdrop-blur-sm rounded-2xl p-6 w-full mb-6">
-            <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold uppercase tracking-wide">
-                Horaires des cours
-              </h3>
-              <div className="mt-3 h-px w-16 bg-white/30 mx-auto"></div>
-            </div>
-            
-            <div className="bg-white/5 rounded-xl p-4">
-              <h4 className="text-xl font-semibold text-white uppercase tracking-wide mb-4 text-center">
-                LUNDI
-              </h4>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center bg-white/10 rounded-lg p-3">
-                  <span className="font-medium text-white text-sm">1er cours</span>
-                  <span className="font-semibold text-white text-sm">18h20 – 19h35</span>
-                </div>
-                <div className="flex justify-between items-center bg-white/10 rounded-lg p-3">
-                  <span className="font-medium text-white text-sm">2e cours</span>
-                  <span className="font-semibold text-white text-sm">19h45 – 21h00</span>
-                </div>
-              </div>
-              
-              <div className="mt-4 text-center">
-                <p className="text-xs text-white/80 mb-3">
-                  Cours dispensés au 13 rue Curie, 69006 Lyon
-                </p>
-                <a
-                  href="mailto:garnierbd@gmail.com?subject=Réservation cours d'essai avec Bernard"
-                 className={buttonClass}
-                >
-                  Réserver un cours d&apos;essai
-                </a>
-              </div>
-            </div>
-          </div>
-
-
-        </div>
-      </main>
-      <Footer />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLdPerson)
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLdCourse)
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLdService)
+        }}
+      />
+      <BernardClient />
     </>
   );
 }
