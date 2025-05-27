@@ -28,9 +28,9 @@ export default function Home() {
           <div className="bg-black/20 backdrop-blur-sm rounded-xl overflow-hidden w-full mb-6 p-6">
             <div className="w-full max-w-md mx-auto">
               <div className="flex flex-col items-center text-center mb-8">
-                <h1 className="text-4xl font-extrabold mb-2">Les Ailes</h1>
-                <h2 className='font-extrabold'>COURS DE HATHA YOGA À LYON 6</h2>
-                <h3 className='font-extrabold'>13 rue Curie - 69006 Lyon</h3>
+                <h1 className="text-4xl font-bold mb-2">Les Ailes</h1>
+                <h2 className='font-bold'>COURS DE HATHA YOGA À LYON 6</h2>
+                <h3 className='font-bold'>13 rue Curie - 69006 Lyon</h3>
               </div>
               
               {/* Carte Google Maps épurée */}
@@ -67,7 +67,7 @@ export default function Home() {
           {/* Horaires des cours */}
           <div className="bg-black/25 backdrop-blur-sm rounded-2xl p-6 w-full mb-6">
             <div className="text-center mb-10">
-              <h3 className="text-3xl font-extrabold uppercase tracking-wide">
+              <h3 className="text-3xl font-bold uppercase tracking-wide">
                 Horaires des cours
               </h3>
               <div className="mt-3 h-px w-16 bg-white/30 mx-auto"></div>
@@ -117,7 +117,7 @@ export default function Home() {
             <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-white/5 rounded-full blur-3xl"></div>
             
             <div className="text-center mb-10">
-              <h3 className="text-3xl font-extrabold uppercase tracking-wide">
+              <h3 className="text-3xl font-bold uppercase tracking-wide">
                 Tarifs annuels
               </h3>
               <div className="mt-3 h-px w-16 bg-white/30 mx-auto"></div>
@@ -191,7 +191,7 @@ export default function Home() {
           {/* Nos professeurs */}
           <div className="bg-black/25 backdrop-blur-sm rounded-2xl p-8 w-full mb-6">
             <div className="text-center mb-10">
-              <h3 className="text-3xl font-extrabold uppercase tracking-wide">
+              <h3 className="text-3xl font-bold uppercase tracking-wide">
                 Nos professeurs
               </h3>
               <div className="mt-3 h-px w-16 bg-white/30 mx-auto"></div>
@@ -303,7 +303,7 @@ export default function Home() {
           {/* L'approche "Les Ailes" */}
           <div className="bg-black/25 backdrop-blur-sm rounded-2xl p-8 w-full mb-6">
             <div className="text-center mb-10">
-              <h3 className="text-3xl font-extrabold uppercase tracking-wide">
+              <h3 className="text-3xl font-bold uppercase tracking-wide">
                 L&apos;approche &quot;Les Ailes&quot;
               </h3>
               <div className="mt-3 h-px w-16 bg-white/30 mx-auto"></div>

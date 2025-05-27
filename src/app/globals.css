@@ -1,6 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap');
 
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 
 :root {
   --font-lato: 'Lato', sans-serif;
@@ -44,7 +47,7 @@ html, body {
 
 h1, h2, h3 {
   font-family: 'Lato', sans-serif;
-  font-weight: 300; /* Pour une apparence plus fine/élégante */
+  font-weight: 100; /* Pour une apparence plus fine/élégante */
 }
 
 p, a, button, div {
