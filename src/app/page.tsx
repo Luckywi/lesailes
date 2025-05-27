@@ -1,33 +1,12 @@
 "use client"
 
-import { useState, useEffect } from 'react';
 import Image from "next/image";
 import { ThreeScene } from '@/components/ThreeScene';
 
 export default function Home() {
-  const [showFixedFooter, setShowFixedFooter] = useState(false);
-
-  // Effet pour détecter la fin du défilement
-  useEffect(() => {
-    const handleScroll = () => {
-      // Calculer la position de défilement
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      const scrollHeight = document.documentElement.scrollHeight;
-      const clientHeight = document.documentElement.clientHeight;
-      
-      // Déterminer si on approche de la fin (à 90% du défilement)
-      const scrollPercentage = scrollTop / (scrollHeight - clientHeight);
-      setShowFixedFooter(scrollPercentage > 0.9);
-    };
-    
-    // Ajouter l'écouteur d'événement
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    
-    // Nettoyer
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
+  // Supprimez tout le code lié au footer conditionnel
+  // const [showFixedFooter, setShowFixedFooter] = useState(false);
+  // useEffect(() => { ... }, []); // Supprimez tout l'effet de scroll
 
   // Style de bouton uniformisé à utiliser partout
   const buttonClass = "py-3 text-center rounded-xl bg-white/10 hover:bg-white/20 text-sm font-medium tracking-wide transition-colors w-full";
@@ -39,13 +18,14 @@ export default function Home() {
       
       {/* Contenu défilable */}
       <main className="relative z-10 flex flex-col items-center text-white">
-        {/* Overlay pour améliorer la lisibilité */}
-        <div className="fixed inset-0 bg-black/30 z-[-1]"></div>
+        {/* Overlay pour améliorer la lisibilité - RÉDUIT pour plus de luminosité */}
+        <div className="fixed inset-0"></div>
         
         {/* Contenu principal */}
-        <div className="w-full max-w-md mx-auto px-4 pt-8 pb-24">
+        <div className="w-full max-w-md mx-auto px-4 pt-8">
           
-          <div className="bg-black/40 backdrop-blur-sm rounded-xl overflow-hidden w-full mb-6 p-6">
+          {/* Réduisez aussi l'opacité des conteneurs pour plus de luminosité */}
+          <div className="bg-black/20 backdrop-blur-sm rounded-xl overflow-hidden w-full mb-6 p-6">
             <div className="w-full max-w-md mx-auto">
               <div className="flex flex-col items-center text-center mb-8">
                 <h1 className="text-4xl font-extrabold mb-2">Les Ailes</h1>
@@ -85,7 +65,7 @@ export default function Home() {
           </div>
 
           {/* Horaires des cours */}
-          <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-6 w-full mb-6">
+          <div className="bg-black/25 backdrop-blur-sm rounded-2xl p-6 w-full mb-6">
             <div className="text-center mb-10">
               <h3 className="text-3xl font-extrabold uppercase tracking-wide">
                 Horaires des cours
@@ -131,7 +111,7 @@ export default function Home() {
           </div>
 
           {/* Tarifs annuels */}
-          <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-8 w-full mb-6 overflow-hidden relative">
+          <div className="bg-black/25 backdrop-blur-sm rounded-2xl p-8 w-full mb-6 overflow-hidden relative">
             {/* Fond décoratif subtil */}
             <div className="absolute -top-24 -right-24 w-48 h-48 bg-white/5 rounded-full blur-3xl"></div>
             <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-white/5 rounded-full blur-3xl"></div>
@@ -209,7 +189,7 @@ export default function Home() {
           </div>
 
           {/* Nos professeurs */}
-          <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-8 w-full mb-6">
+          <div className="bg-black/25 backdrop-blur-sm rounded-2xl p-8 w-full mb-6">
             <div className="text-center mb-10">
               <h3 className="text-3xl font-extrabold uppercase tracking-wide">
                 Nos professeurs
@@ -230,10 +210,10 @@ export default function Home() {
                 {
                   name: 'Bernard Garnier',
                   role: 'Cours du lundi',
-                  img: '/lesailes.png',
+                  img: '/Bernard.png',
                   email: 'garnierbd@gmail.com',
                   phone: '06 95 31 10 88',
-                  bio: "Enseignant de Yoga formé selon l'enseignement de Sri Mahesh au sein de la FFHY. Bernard partage sa passion pour le Hatha Yoga dans un environnement respectueux du rythme et des capacités de chacun."
+                  bio: "Enseignant de yoga formé à l’enseignement de Sri Mahesh au sein de la FFHY, Bernard pratique le Hatha Yoga depuis 2011, année où il débute comme élève à l’association Les Ailes. Depuis 2021, il enseigne en région lyonnaise, dans un environnement respectueux du rythme et des capacités de chacun."
                 },
               ].map((prof) => (
                 <div
@@ -321,7 +301,7 @@ export default function Home() {
           </div>
 
           {/* L'approche "Les Ailes" */}
-          <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-8 w-full mb-6">
+          <div className="bg-black/25 backdrop-blur-sm rounded-2xl p-8 w-full mb-6">
             <div className="text-center mb-10">
               <h3 className="text-3xl font-extrabold uppercase tracking-wide">
                 L&apos;approche &quot;Les Ailes&quot;
@@ -369,17 +349,17 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Espace pour permettre le défilement avec le modèle 3D */}
-        <div style={{ height: '100vh' }} />
+        {/* Supprimez cette div qui créait un espace vide */}
+        {/* <div style={{ height: '100vh' }} /> */}
       </main>
       
-      {/* Footer fixe qui apparaît uniquement à la fin du défilement */}
-      {showFixedFooter && (
-        <footer className="fixed bottom-0 left-0 right-0 w-full text-center text-sm py-6 bg-black/70 backdrop-blur-sm z-30 transition-opacity duration-300 ease-in-out">
-          <p>Professeurs formés par la Fédération Française de Hatha Yoga</p>
-          <p className="mt-1">selon l&apos;enseignement de Sri Mahesh</p>
-        </footer>
-      )}
+      {/* Footer classique en fin de contenu */}
+      <footer className="relative z-10 w-full text-center text-sm py-8 mt-12">
+        <div className="bg-black/30 backdrop-blur-sm rounded-2xl mx-4 p-6 max-w-md mx-auto border border-white/10">
+          <p className="text-white/90 font-medium">Professeurs formés par la Fédération Française de Hatha Yoga</p>
+          <p className="mt-2 text-white/70">selon l&apos;enseignement de Sri Mahesh</p>
+        </div>
+      </footer>
     </>
   );
 }

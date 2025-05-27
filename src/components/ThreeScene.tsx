@@ -24,8 +24,8 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({ modelPath }) => {
     )
 
     // 2. Définit le zoom de départ et d'arrivée
-    const startZ = 0.1    // très proche, zoomé
-    const endZ = 1    // éloigné, dézoommé
+    const startZ = 0.15    // très proche, zoomé
+    const endZ = 0.88    // éloigné, dézoommé
     camera.position.z = startZ
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
