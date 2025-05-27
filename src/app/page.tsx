@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { ThreeScene } from '@/components/ThreeScene';
+import { Footer } from '@/components/Footer';
 
 export default function Home() {
   // Supprimez tout le code lié au footer conditionnel
@@ -291,9 +292,9 @@ export default function Home() {
                       </div>
                     </div>
 
-                    <a href={`/professeurs/${prof.name.toLowerCase().replace(/ /g, '-')}`} className={buttonClass}>
-                      En savoir plus
-                    </a>
+                    <a href={prof.name === 'Bernard Garnier' ? '/bernard' : '#'} className={buttonClass}>
+                   En savoir plus
+                      </a>      
                   </div>
                 </div>
               ))}
@@ -353,13 +354,8 @@ export default function Home() {
         {/* <div style={{ height: '100vh' }} /> */}
       </main>
       
-      {/* Footer classique en fin de contenu */}
-      <footer className="relative z-10 w-full text-center text-sm py-8 mt-12">
-        <div className="bg-black/30 backdrop-blur-sm rounded-2xl mx-4 p-6 max-w-md mx-auto border border-white/10">
-          <p className="text-white/90 font-medium">Professeurs formés par la Fédération Française de Hatha Yoga</p>
-          <p className="mt-2 text-white/70">selon l&apos;enseignement de Sri Mahesh</p>
-        </div>
-      </footer>
+   
+      <Footer />
     </>
   );
 }
