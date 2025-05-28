@@ -196,7 +196,7 @@ export default function Home() {
                 {
                   name: 'Nathalie Fauconnier',
                   role: 'Cours du mercredi',
-                  img: '/lesailes.png',
+                  img: '/nathalie.png',
                   email: 'nathalyio@hotmail.com',
                   phone: '06 77 48 18 03',
                   bio: "Enseignante de Yoga formée selon l'enseignement de Sri Mahesh au sein de la FFHY. Pratiquante depuis plus de 15 ans, Nathalie vous accompagne avec bienveillance dans votre découverte ou approfondissement du Hatha Yoga."

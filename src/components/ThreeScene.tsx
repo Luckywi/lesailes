@@ -10,13 +10,15 @@ interface ThreeSceneProps {
   startZ?: number
   endZ?: number
   rotationSpeed?: number
+  scrollSensitivity?: number // Nouvelle prop pour ajuster la sensibilité
 }
 
 export const ThreeScene: React.FC<ThreeSceneProps> = ({ 
   modelPath,
   startZ = 0.15,
   endZ = 0.88,
-  rotationSpeed = 0
+  rotationSpeed = 0,
+  scrollSensitivity = 5 // Valeur par défaut, ajustable
 }) => {
   const mountRef = useRef<HTMLDivElement>(null)
   const [isLoaded, setIsLoaded] = useState(false)
@@ -32,29 +34,33 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({
     scrollTimeout: NodeJS.Timeout | null
   } | null>(null)
 
-  // Fonction de mise à jour du zoom avec throttling
+  // Fonction de mise à jour du zoom avec throttling renforcé
   const updateZoom = useCallback(() => {
     if (!sceneRef.current) return
     
     const scrollY = window.scrollY
     const lastScrollY = sceneRef.current.lastScrollY || 0
     
-    // Skip si le changement est trop petit (évite les micro-mouvements)
-    if (Math.abs(scrollY - lastScrollY) < 1) return
+    // SENSIBILITÉ RÉDUITE : Skip si le changement est inférieur au seuil
+    if (Math.abs(scrollY - lastScrollY) < scrollSensitivity) return
     
     sceneRef.current.lastScrollY = scrollY
     
     const docHeight = document.body.scrollHeight - window.innerHeight
     const scrollFrac = docHeight > 0 ? Math.max(0, Math.min(1, scrollY / docHeight)) : 0
     
-    // Easing optimisé
-    const easeOutQuart = (t: number) => 1 - Math.pow(1 - t, 4)
-    const smoothFrac = easeOutQuart(scrollFrac)
+    // Easing plus doux pour réduire les micro-mouvements
+    const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
+    const smoothFrac = easeOutCubic(scrollFrac)
     
-    sceneRef.current.camera.position.z = startZ + smoothFrac * (endZ - startZ)
+    // Arrondir la position pour éviter les micro-mouvements de la caméra
+    const newZ = startZ + smoothFrac * (endZ - startZ)
+    const roundedZ = Math.round(newZ * 1000) / 1000 // Arrondir à 3 décimales
+    
+    sceneRef.current.camera.position.z = roundedZ
   }, [startZ, endZ])
 
-  // Throttling du scroll
+  // Throttling du scroll avec RequestAnimationFrame pour optimiser
   const throttledUpdateZoom = useCallback(() => {
     if (!sceneRef.current) return
     
@@ -66,15 +72,17 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({
       clearTimeout(sceneRef.current.scrollTimeout)
     }
     
-    // Appliquer le zoom immédiatement
-    updateZoom()
+    // Utiliser requestAnimationFrame pour synchroniser avec le refresh rate
+    requestAnimationFrame(() => {
+      updateZoom()
+    })
     
-    // Marquer la fin du scroll après un délai
+    // Marquer la fin du scroll après un délai plus long
     sceneRef.current.scrollTimeout = setTimeout(() => {
       if (sceneRef.current) {
         sceneRef.current.isScrolling = false
       }
-    }, 150)
+    }, 200) // Délai augmenté pour réduire les re-rendus
   }, [updateZoom])
 
   // Fonction de redimensionnement optimisée
@@ -90,16 +98,26 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({
     renderer.setSize(width, height)
   }, [])
 
-  // Boucle d'animation optimisée
+  // Boucle d'animation optimisée avec FPS adaptatif
   const animate = useCallback(() => {
     if (!sceneRef.current) return
 
-    const { scene, camera, renderer, model } = sceneRef.current
+    const { scene, camera, renderer, model, isScrolling } = sceneRef.current
     
-    sceneRef.current.animationId = requestAnimationFrame(animate)
+    // Réduire la fréquence de rendu pendant le scroll intensif
+    if (isScrolling) {
+      // Rendre seulement 1 frame sur 3 pendant le scroll pour économiser les ressources
+      sceneRef.current.animationId = requestAnimationFrame(() => {
+        sceneRef.current!.animationId = requestAnimationFrame(() => {
+          sceneRef.current!.animationId = requestAnimationFrame(animate)
+        })
+      })
+    } else {
+      sceneRef.current.animationId = requestAnimationFrame(animate)
+    }
     
-    // Rotation optionnelle
-    if (model && rotationSpeed) {
+    // Rotation optionnelle (réduite pendant le scroll)
+    if (model && rotationSpeed && !isScrolling) {
       model.rotation.y += rotationSpeed
     }
 
