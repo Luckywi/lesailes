@@ -58,7 +58,7 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({
     const roundedZ = Math.round(newZ * 1000) / 1000 // Arrondir à 3 décimales
     
     sceneRef.current.camera.position.z = roundedZ
-  }, [startZ, endZ])
+  }, [startZ, endZ, scrollSensitivity]) // Ajouter scrollSensitivity
 
   // Throttling du scroll avec RequestAnimationFrame pour optimiser
   const throttledUpdateZoom = useCallback(() => {
@@ -125,7 +125,9 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({
   }, [rotationSpeed])
 
   useEffect(() => {
-    if (!mountRef.current) return
+    // Copier la référence pour éviter le warning
+    const mountElement = mountRef.current
+    if (!mountElement) return
 
     // Initialisation de la scène
     const scene = new THREE.Scene()
@@ -159,7 +161,7 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({
     scene.add(ambientLight)
 
     // Ajouter au DOM IMMÉDIATEMENT
-    mountRef.current.appendChild(renderer.domElement)
+    mountElement.appendChild(renderer.domElement)
 
     // Stocker les références
     sceneRef.current = {
@@ -173,8 +175,9 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({
       scrollTimeout: null
     }
 
-    // CHARGER LE MODÈLE EN PRIORITÉ ABSOLUE
+    // CHARGER LE MODÈLE EN PRIORITÉ ABSOLUE (sans décodeurs)
     const loader = new GLTFLoader()
+    
     loader.load(
       modelPath,
       (gltf) => {
@@ -270,8 +273,8 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({
         sceneRef.current.renderer.forceContextLoss()
         
         // Retirer du DOM
-        if (mountRef.current && mountRef.current.contains(sceneRef.current.renderer.domElement)) {
-          mountRef.current.removeChild(sceneRef.current.renderer.domElement)
+        if (mountElement && mountElement.contains(sceneRef.current.renderer.domElement)) {
+          mountElement.removeChild(sceneRef.current.renderer.domElement)
         }
       }
     }
