@@ -58,3 +58,29 @@ p, a, button, div {
 .font-medium, strong, b {
   font-weight: 700; /* Pour mettre l'accent sur certains textes */
 }
+
+/* Forcer la transparence de la barre de statut sur mobile */
+@supports (padding-top: env(safe-area-inset-top)) {
+  body {
+    /* Extend content behind status bar */
+    padding-top: 0;
+    margin-top: calc(env(safe-area-inset-top) * -1);
+  }
+  
+  /* Adjust first content to account for status bar */
+  main {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* À ajouter dans globals.css */
+@media screen and (max-width: 768px) {
+  html, body {
+    padding-top: 0 !important;
+    margin-top: -44px; /* Hauteur approximative de la status bar iOS */
+  }
+  
+  main {
+    padding-top: 44px;
+  }
+}
