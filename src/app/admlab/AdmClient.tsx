@@ -3,13 +3,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ThreeScene } from '@/components/ThreeScene';
 
 export default function AdmClient() {
   return (
     <>
       {/* Fond 3D */}
-      <ThreeScene modelPath="/Peacock.glb" />
+
       
       <main className="relative z-10 min-h-screen flex flex-col text-white">
         <motion.div 

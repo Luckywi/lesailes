@@ -1,7 +1,6 @@
 "use client"
 
 import Image from "next/image";
-import { ThreeScene } from '@/components/ThreeScene';
 import { Footer } from '@/components/Footer';
 
 export default function Home() {
@@ -14,8 +13,7 @@ export default function Home() {
 
   return (
     <>
-      {/* Fond 3D */}
-      <ThreeScene modelPath="/Peacock.glb" />
+
       
       {/* Contenu défilable */}
       <main className="relative flex flex-col items-center text-white" style={{ zIndex: 10 }}>

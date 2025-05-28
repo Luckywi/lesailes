@@ -1,90 +1,168 @@
+// src/components/ThreeScene.tsx (version simplifiée)
 'use client'
 
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useCallback } from 'react'
 import * as THREE from 'three'
-import { GLTFLoader } from 'three-stdlib' // ou three/examples...
+import { GLTFLoader } from 'three-stdlib'
 
 interface ThreeSceneProps {
   modelPath: string
+  startZ?: number
+  endZ?: number
+  rotationSpeed?: number
 }
 
-export const ThreeScene: React.FC<ThreeSceneProps> = ({ modelPath }) => {
+export const ThreeScene: React.FC<ThreeSceneProps> = ({ 
+  modelPath,
+  startZ = 0.15,
+  endZ = 0.88,
+  rotationSpeed = 0
+}) => {
   const mountRef = useRef<HTMLDivElement>(null)
+  const sceneRef = useRef<{
+    scene: THREE.Scene
+    camera: THREE.PerspectiveCamera
+    renderer: THREE.WebGLRenderer
+    model: THREE.Group | null
+    animationId: number | null
+  } | null>(null)
+
+  // Fonction de mise à jour du zoom optimisée
+  const updateZoom = useCallback(() => {
+    if (!sceneRef.current) return
+    
+    const scrollY = window.scrollY
+    const docHeight = document.body.scrollHeight - window.innerHeight
+    const scrollFrac = docHeight > 0 ? scrollY / docHeight : 0
+    
+    // Easing pour une transition plus fluide
+    const easeInOutCubic = (t: number) => 
+      t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1
+    
+    const smoothFrac = easeInOutCubic(scrollFrac)
+    sceneRef.current.camera.position.z = startZ + smoothFrac * (endZ - startZ)
+  }, [startZ, endZ])
+
+  // Fonction de redimensionnement optimisée
+  const handleResize = useCallback(() => {
+    if (!sceneRef.current) return
+    
+    const { camera, renderer } = sceneRef.current
+    camera.aspect = window.innerWidth / window.innerHeight
+    camera.updateProjectionMatrix()
+    renderer.setSize(window.innerWidth, window.innerHeight)
+  }, [])
+
+  // Boucle d'animation optimisée
+  const animate = useCallback(() => {
+    if (!sceneRef.current) return
+
+    const { scene, camera, renderer, model } = sceneRef.current
+    
+    sceneRef.current.animationId = requestAnimationFrame(animate)
+    
+    // Rotation optionnelle
+    if (model && rotationSpeed) {
+      model.rotation.y += rotationSpeed
+    }
+
+    renderer.render(scene, camera)
+  }, [rotationSpeed])
 
   useEffect(() => {
     if (!mountRef.current) return
 
-    // 1. Scène, caméra, renderer
+    // Initialisation de la scène
     const scene = new THREE.Scene()
+    
     const camera = new THREE.PerspectiveCamera(
       75,
       window.innerWidth / window.innerHeight,
       0.1,
       1000
     )
-
-    // 2. Définit le zoom de départ et d'arrivée
-    const startZ = 0.15    // très proche, zoomé
-    const endZ = 0.88    // éloigné, dézoommé
     camera.position.z = startZ
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+    // Renderer avec optimisations
+    const renderer = new THREE.WebGLRenderer({ 
+      antialias: true, 
+      alpha: true,
+      powerPreference: "high-performance"
+    })
     renderer.setSize(window.innerWidth, window.innerHeight)
-    renderer.setPixelRatio(window.devicePixelRatio)
-    mountRef.current.appendChild(renderer.domElement)
-
-    // 3. Lumière
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    
+    // Lumière
     const ambientLight = new THREE.AmbientLight(0xffffff, 1)
     scene.add(ambientLight)
 
-    // 4. Chargement du modèle
+    // Ajouter au DOM
+    mountRef.current.appendChild(renderer.domElement)
+
+    // Stocker les références
+    sceneRef.current = {
+      scene,
+      camera,
+      renderer,
+      model: null,
+      animationId: null
+    }
+
+    // Charger le modèle
     const loader = new GLTFLoader()
-    let model: THREE.Group | null = null
     loader.load(
       modelPath,
       (gltf) => {
-        model = gltf.scene
-        model.scale.set(1, 1, 1)
-        scene.add(model)
+        if (sceneRef.current) {
+          // Optimiser le modèle
+          gltf.scene.traverse((child) => {
+            if (child instanceof THREE.Mesh) {
+              child.castShadow = false
+              child.receiveShadow = false
+              if (child.material instanceof THREE.Material) {
+                child.material.transparent = false
+              }
+            }
+          })
+
+          sceneRef.current.model = gltf.scene
+          sceneRef.current.scene.add(gltf.scene)
+        }
       },
       undefined,
-      (err) => console.error(err)
+      (error) => console.error('Erreur chargement modèle:', error)
     )
 
-    // 5. Fonction pour mettre à jour le zoom selon le scroll
-    const updateZoom = () => {
-      const scrollY = window.scrollY
-      const docHeight = document.body.scrollHeight - window.innerHeight
-      const scrollFrac = docHeight > 0 ? scrollY / docHeight : 0
-      camera.position.z = startZ + scrollFrac * (endZ - startZ)
-    }
-
-    // 6. Écouteurs
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight
-      camera.updateProjectionMatrix()
-      renderer.setSize(window.innerWidth, window.innerHeight)
-    })
-    window.addEventListener('scroll', updateZoom)
-
-    // 7. Appel initial pour prendre en compte scrollY = 0
+    // Event listeners avec options passives pour les performances
+    window.addEventListener('scroll', updateZoom, { passive: true })
+    window.addEventListener('resize', handleResize, { passive: true })
+    
+    // Appel initial
     updateZoom()
-
-    // 8. Boucle d'animation
-    const animate = () => {
-      requestAnimationFrame(animate)
-      // if (model) model.rotation.y += 0.005  // si tu veux tourner doucement
-      renderer.render(scene, camera)
-    }
+    
+    // Démarrer l'animation
     animate()
 
-    // 9. Cleanup
+    // Cleanup
     return () => {
       window.removeEventListener('scroll', updateZoom)
-      mountRef.current?.removeChild(renderer.domElement)
-      renderer.dispose()
+      window.removeEventListener('resize', handleResize)
+      
+      if (sceneRef.current) {
+        if (sceneRef.current.animationId) {
+          cancelAnimationFrame(sceneRef.current.animationId)
+        }
+        
+        // Nettoyage WebGL
+        sceneRef.current.renderer.dispose()
+        
+        // Retirer du DOM
+        if (mountRef.current && mountRef.current.contains(sceneRef.current.renderer.domElement)) {
+          mountRef.current.removeChild(sceneRef.current.renderer.domElement)
+        }
+      }
     }
-  }, [modelPath])
+  }, [modelPath, startZ, endZ, updateZoom, handleResize, animate])
 
   return (
     <div
@@ -95,8 +173,8 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({ modelPath }) => {
         left: 0,
         width: '100vw',
         height: '100vh',
-        zIndex: 1, // Changé de -1 à 1
-        pointerEvents: 'none', // Les clics passent à travers
+        zIndex: 1,
+        pointerEvents: 'none',
       }}
     />
   )

@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ThreeScene } from '@/components/ThreeScene';
 import { Footer } from '@/components/Footer'
 
 export default function BernardClient() {
@@ -10,8 +9,7 @@ export default function BernardClient() {
 
   return (
     <>
-      {/* Fond 3D */}
-      <ThreeScene modelPath="/Peacock.glb" />
+
       
       {/* Contenu */}
       <main className="relative z-10 flex flex-col items-center text-white min-h-screen">
