@@ -22,7 +22,14 @@ export default function Home() {
           <div className="bg-black/20 backdrop-blur-sm rounded-xl overflow-hidden w-full mb-6 p-6">
             <div className="w-full max-w-md mx-auto">
               <div className="flex flex-col items-center text-center mb-8">
-                <h1 className="text-4xl font-bold mb-2">Les Ailes</h1>
+                 <Image
+                      src={"/les-ailes-logo.png"}
+                      alt={"Logo les Ailes Hatha Yoge Lyon 6"}
+                      width={800}
+                      height={400}
+                      className="w-1/3 h-1/3 object-cover"
+                    />
+
                 <h2 className='font-bold'>COURS DE HATHA YOGA À LYON 6</h2>
                 <h3 className='font-bold'>13 rue Curie - 69006 Lyon</h3>
               </div>
@@ -291,9 +298,9 @@ export default function Home() {
                         En savoir plus
                       </Link>
                     ) : (
-                      <div className={`${buttonClass} opacity-50 cursor-not-allowed`}>
-                        Bientôt disponible
-                      </div>
+                      <Link href="/nathalie" className={buttonClass}>
+                        En savoir plus
+                      </Link>
                     )}
                   </div>
                 </div>

@@ -1,4 +1,4 @@
-// src/components/ThreeScene.tsx (version optimisée sans détection mobile)
+// src/components/ThreeScene.tsx (version ultra-optimisée avec calibrage précis)
 'use client'
 
 import { useRef, useEffect, useCallback, useState } from 'react'
@@ -10,7 +10,7 @@ interface ThreeSceneProps {
   startZ?: number
   endZ?: number
   rotationSpeed?: number
-  scrollSensitivity?: number // Nouvelle prop pour ajuster la sensibilité
+  scrollSensitivity?: number
 }
 
 export const ThreeScene: React.FC<ThreeSceneProps> = ({ 
@@ -18,7 +18,7 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({
   startZ = 0.15,
   endZ = 0.88,
   rotationSpeed = 0,
-  scrollSensitivity = 5 // Valeur par défaut, ajustable
+  scrollSensitivity = 2
 }) => {
   const mountRef = useRef<HTMLDivElement>(null)
   const [isLoaded, setIsLoaded] = useState(false)
@@ -32,60 +32,94 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({
     lastScrollY: number
     isScrolling: boolean
     scrollTimeout: NodeJS.Timeout | null
+    maxScrollHeight: number // ✅ AJOUT pour calibrage précis
+    lastKnownScrollHeight: number // ✅ Cache pour éviter les recalculs
   } | null>(null)
 
-  // Fonction de mise à jour du zoom avec throttling renforcé
+  // ✅ FONCTION OPTIMISÉE pour calculer la hauteur de scroll réelle
+  const getMaxScrollHeight = useCallback(() => {
+    // Utiliser plusieurs méthodes pour garantir la précision
+    const documentHeight = Math.max(
+      document.body.scrollHeight,
+      document.body.offsetHeight,
+      document.documentElement.clientHeight,
+      document.documentElement.scrollHeight,
+      document.documentElement.offsetHeight
+    )
+    
+    const viewportHeight = window.innerHeight
+    const maxScroll = Math.max(0, documentHeight - viewportHeight)
+    
+    return maxScroll
+  }, [])
+
+  // ✅ FONCTION DE MISE À JOUR DU ZOOM ULTRA-OPTIMISÉE
   const updateZoom = useCallback(() => {
     if (!sceneRef.current) return
     
     const scrollY = window.scrollY
     const lastScrollY = sceneRef.current.lastScrollY || 0
     
-    // SENSIBILITÉ RÉDUITE : Skip si le changement est inférieur au seuil
+    // Skip si changement trop faible (optimisation ressources)
     if (Math.abs(scrollY - lastScrollY) < scrollSensitivity) return
     
     sceneRef.current.lastScrollY = scrollY
     
-    const docHeight = document.body.scrollHeight - window.innerHeight
-    const scrollFrac = docHeight > 0 ? Math.max(0, Math.min(1, scrollY / docHeight)) : 0
+    // ✅ CALIBRAGE PRÉCIS : Recalculer la hauteur seulement si nécessaire
+    let maxScrollHeight = sceneRef.current.maxScrollHeight
+    const currentDocHeight = document.body.scrollHeight
     
-    // Easing plus doux pour réduire les micro-mouvements
-    const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
-    const smoothFrac = easeOutCubic(scrollFrac)
+    // Mise à jour dynamique de la hauteur si la page a changé
+    if (currentDocHeight !== sceneRef.current.lastKnownScrollHeight) {
+      maxScrollHeight = getMaxScrollHeight()
+      sceneRef.current.maxScrollHeight = maxScrollHeight
+      sceneRef.current.lastKnownScrollHeight = currentDocHeight
+    }
     
-    // Arrondir la position pour éviter les micro-mouvements de la caméra
-    const newZ = startZ + smoothFrac * (endZ - startZ)
-    const roundedZ = Math.round(newZ * 1000) / 1000 // Arrondir à 3 décimales
+    // ✅ CALCUL PRÉCIS : scrollY / maxScrollHeight donne un ratio 0->1 parfait
+    const scrollFraction = maxScrollHeight > 0 ? Math.max(0, Math.min(1, scrollY / maxScrollHeight)) : 0
+    
+    // ✅ EASING OPTIMISÉ pour fluidité maximale
+    const smoothFraction = scrollFraction * scrollFraction * (3 - 2 * scrollFraction) // smoothstep
+    
+    // ✅ POSITION FINALE : startZ -> endZ parfaitement calibré
+    const newZ = startZ + smoothFraction * (endZ - startZ)
+    
+    // Arrondir pour éviter micro-mouvements et optimiser rendu
+    const roundedZ = Math.round(newZ * 10000) / 10000 // Précision à 4 décimales
     
     sceneRef.current.camera.position.z = roundedZ
-  }, [startZ, endZ, scrollSensitivity]) // Ajouter scrollSensitivity
+    
+    // ✅ DEBUG optionnel (à retirer en production)
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Scroll: ${scrollY}/${maxScrollHeight} (${(scrollFraction * 100).toFixed(1)}%) -> Z: ${roundedZ}`)
+    }
+  }, [startZ, endZ, scrollSensitivity, getMaxScrollHeight])
 
-  // Throttling du scroll avec RequestAnimationFrame pour optimiser
+  // ✅ THROTTLING ULTRA-OPTIMISÉ avec RAF
   const throttledUpdateZoom = useCallback(() => {
     if (!sceneRef.current) return
     
-    // Marquer qu'on est en train de scroller
     sceneRef.current.isScrolling = true
     
-    // Clear le timeout précédent
     if (sceneRef.current.scrollTimeout) {
       clearTimeout(sceneRef.current.scrollTimeout)
     }
     
-    // Utiliser requestAnimationFrame pour synchroniser avec le refresh rate
+    // ✅ Utiliser RAF pour synchronisation parfaite avec l'écran
     requestAnimationFrame(() => {
       updateZoom()
     })
     
-    // Marquer la fin du scroll après un délai plus long
+    // Marquer fin du scroll après délai optimisé
     sceneRef.current.scrollTimeout = setTimeout(() => {
       if (sceneRef.current) {
         sceneRef.current.isScrolling = false
       }
-    }, 200) // Délai augmenté pour réduire les re-rendus
+    }, 150) // Délai réduit pour meilleure réactivité
   }, [updateZoom])
 
-  // Fonction de redimensionnement optimisée
+  // ✅ GESTION REDIMENSIONNEMENT avec recalibrage
   const handleResize = useCallback(() => {
     if (!sceneRef.current) return
     
@@ -96,27 +130,32 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({
     camera.aspect = width / height
     camera.updateProjectionMatrix()
     renderer.setSize(width, height)
-  }, [])
+    
+    // ✅ RECALIBRAGE après redimensionnement
+    sceneRef.current.maxScrollHeight = getMaxScrollHeight()
+    sceneRef.current.lastKnownScrollHeight = document.body.scrollHeight
+    
+    // Mettre à jour immédiatement la position
+    updateZoom()
+  }, [getMaxScrollHeight, updateZoom])
 
-  // Boucle d'animation optimisée avec FPS adaptatif
+  // ✅ BOUCLE D'ANIMATION ULTRA-OPTIMISÉE
   const animate = useCallback(() => {
     if (!sceneRef.current) return
 
     const { scene, camera, renderer, model, isScrolling } = sceneRef.current
     
-    // Réduire la fréquence de rendu pendant le scroll intensif
+    // ✅ FRAME SKIPPING intelligent pendant scroll intensif
     if (isScrolling) {
-      // Rendre seulement 1 frame sur 3 pendant le scroll pour économiser les ressources
+      // Rendre 1 frame sur 2 pendant le scroll pour économiser ressources
       sceneRef.current.animationId = requestAnimationFrame(() => {
-        sceneRef.current!.animationId = requestAnimationFrame(() => {
-          sceneRef.current!.animationId = requestAnimationFrame(animate)
-        })
+        sceneRef.current!.animationId = requestAnimationFrame(animate)
       })
     } else {
       sceneRef.current.animationId = requestAnimationFrame(animate)
     }
     
-    // Rotation optionnelle (réduite pendant le scroll)
+    // Rotation uniquement quand pas de scroll (économie ressources)
     if (model && rotationSpeed && !isScrolling) {
       model.rotation.y += rotationSpeed
     }
@@ -125,11 +164,10 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({
   }, [rotationSpeed])
 
   useEffect(() => {
-    // Copier la référence pour éviter le warning
     const mountElement = mountRef.current
     if (!mountElement) return
 
-    // Initialisation de la scène
+    // ✅ INITIALISATION SCÈNE (identique mais avec nouvelles props)
     const scene = new THREE.Scene()
     
     const camera = new THREE.PerspectiveCamera(
@@ -139,16 +177,14 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({
       1000
     )
     camera.position.set(0, 0, startZ)
-    camera.lookAt(0, 0, 0) // S'assurer que la caméra regarde vers le centre
+    camera.lookAt(0, 0, 0)
 
-    // Renderer avec optimisations
     const renderer = new THREE.WebGLRenderer({ 
       antialias: true,
       alpha: true,
       powerPreference: "high-performance",
       stencil: false,
-      depth: true,
-      logarithmicDepthBuffer: false
+      depth: true
     })
     
     renderer.setSize(window.innerWidth, window.innerHeight)
@@ -156,14 +192,14 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({
     renderer.shadowMap.enabled = false
     renderer.outputColorSpace = THREE.SRGBColorSpace
     
-    // Lumière
     const ambientLight = new THREE.AmbientLight(0xffffff, 1)
     scene.add(ambientLight)
 
-    // Ajouter au DOM IMMÉDIATEMENT
     mountElement.appendChild(renderer.domElement)
 
-    // Stocker les références
+    // ✅ CALCUL INITIAL de la hauteur de scroll
+    const initialMaxScrollHeight = getMaxScrollHeight()
+
     sceneRef.current = {
       scene,
       camera,
@@ -172,10 +208,12 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({
       animationId: null,
       lastScrollY: 0,
       isScrolling: false,
-      scrollTimeout: null
+      scrollTimeout: null,
+      maxScrollHeight: initialMaxScrollHeight, // ✅ NOUVEAU
+      lastKnownScrollHeight: document.body.scrollHeight // ✅ NOUVEAU
     }
 
-    // CHARGER LE MODÈLE EN PRIORITÉ ABSOLUE (sans décodeurs)
+    // ✅ CHARGEMENT MODÈLE (optimisé identique)
     const loader = new GLTFLoader()
     
     loader.load(
@@ -193,7 +231,6 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({
                 child.material.transparent = false
               }
               
-              // Optimiser la géométrie
               if (child.geometry instanceof THREE.BufferGeometry) {
                 child.geometry.computeBoundingBox()
                 child.geometry.computeBoundingSphere()
@@ -203,47 +240,48 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({
 
           sceneRef.current.model = gltf.scene
           
-          // Centrer et redimensionner le modèle
+          // Centrer et redimensionner
           const box = new THREE.Box3().setFromObject(gltf.scene)
           const center = box.getCenter(new THREE.Vector3())
           const size = box.getSize(new THREE.Vector3())
           
-          // Centrer le modèle à l'origine
           gltf.scene.position.sub(center)
           
-          // Ajuster l'échelle pour qu'il soit visible
           const maxDimension = Math.max(size.x, size.y, size.z)
-          const scale = 2 / maxDimension // Ajustez cette valeur selon vos besoins
+          const scale = 2 / maxDimension
           gltf.scene.scale.setScalar(scale)
           
           sceneRef.current.scene.add(gltf.scene)
           setIsLoaded(true)
         }
       },
-      // Progress callback pour un feedback visuel
       (progress) => {
         console.log('Chargement modèle 3D :', Math.round((progress.loaded / progress.total) * 100) + '%')
       },
       (error) => {
         console.error('Erreur chargement modèle:', error)
-        setIsLoaded(true) // Continuer même en cas d'erreur
+        setIsLoaded(true)
       }
     )
 
-    // Event listeners optimisés
+    // ✅ EVENT LISTENERS optimisés
     window.addEventListener('scroll', throttledUpdateZoom, { 
-      passive: true,
-      capture: false 
+      passive: true
     })
     window.addEventListener('resize', handleResize, { passive: true })
     
-    // Appel initial
-    updateZoom()
+    // ✅ CALIBRAGE INITIAL après chargement DOM
+    setTimeout(() => {
+      if (sceneRef.current) {
+        sceneRef.current.maxScrollHeight = getMaxScrollHeight()
+        sceneRef.current.lastKnownScrollHeight = document.body.scrollHeight
+        updateZoom()
+      }
+    }, 100) // Petit délai pour s'assurer que le DOM est complètement chargé
     
-    // Démarrer l'animation IMMÉDIATEMENT
     animate()
 
-    // Cleanup amélioré
+    // ✅ CLEANUP (identique)
     return () => {
       window.removeEventListener('scroll', throttledUpdateZoom)
       window.removeEventListener('resize', handleResize)
@@ -257,7 +295,6 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({
           cancelAnimationFrame(sceneRef.current.animationId)
         }
         
-        // Nettoyage WebGL complet
         sceneRef.current.scene.traverse((child) => {
           if (child instanceof THREE.Mesh) {
             child.geometry?.dispose()
@@ -272,17 +309,15 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({
         sceneRef.current.renderer.dispose()
         sceneRef.current.renderer.forceContextLoss()
         
-        // Retirer du DOM
         if (mountElement && mountElement.contains(sceneRef.current.renderer.domElement)) {
           mountElement.removeChild(sceneRef.current.renderer.domElement)
         }
       }
     }
-  }, [modelPath, startZ, endZ, updateZoom, throttledUpdateZoom, handleResize, animate])
+  }, [modelPath, startZ, endZ, getMaxScrollHeight, updateZoom, throttledUpdateZoom, handleResize, animate])
 
   return (
     <>
-      {/* Loader pendant le chargement */}
       {!isLoaded && (
         <div
           style={{
@@ -325,7 +360,6 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({
         }}
       />
       
-      {/* CSS pour l'animation du loader */}
       <style jsx>{`
         @keyframes spin {
           0% { transform: rotate(0deg); }

@@ -17,7 +17,7 @@ export function ClientLayout({ children }: ClientLayoutProps) {
         startZ={0.15}
         endZ={0.88}
         rotationSpeed={0}
-        scrollSensitivity={6} // Plus la valeur est élevée, moins il y a de rendus
+        scrollSensitivity={2} // Plus la valeur est élevée, moins il y a de rendus
       />
       
       {/* Contenu des pages */}
