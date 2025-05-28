@@ -1,20 +1,15 @@
 "use client"
 
 import Image from "next/image";
+import Link from "next/link"; // ✅ AJOUTÉ - Import de Link
 import { Footer } from '@/components/Footer';
 
 export default function Home() {
-  // Supprimez tout le code lié au footer conditionnel
-  // const [showFixedFooter, setShowFixedFooter] = useState(false);
-  // useEffect(() => { ... }, []); // Supprimez tout l'effet de scroll
-
   // Style de bouton uniformisé à utiliser partout
   const buttonClass = "py-3 text-center rounded-xl bg-white/10 hover:bg-white/20 text-sm font-medium tracking-wide transition-colors w-full";
 
   return (
     <>
-
-      
       {/* Contenu défilable */}
       <main className="relative flex flex-col items-center text-white" style={{ zIndex: 10 }}>
         {/* Overlay pour améliorer la lisibilité - RÉDUIT pour plus de luminosité */}
@@ -47,11 +42,11 @@ export default function Home() {
               {/* Boutons en colonne avec style uniformisé */}
               <div className="flex flex-col gap-4 w-full">
                 <a
-  className={buttonClass}
-  href="mailto:nathalyio@hotmail.com,garnierbd@gmail.com?subject=Demande de cours d'essai&body=Bonjour,%0D%0A%0D%0AJ'aimerais réserver un cours d'essai.%0D%0A%0D%0APour les cours avec Nathalie le mercredi :%0D%0A- Premier cours (18h20 – 19h35) : ____/____ si il vous reste de la place%0D%0A- 2e cours (19h45 – 21h00) : ____/____ si il vous reste de la place%0D%0A%0D%0APour les cours avec Bernard le lundi :%0D%0A- Premier cours (18h20 – 19h35) : ____/____ si il vous reste de la place%0D%0A- 2e cours (19h45 – 21h00) : ____/____ si il vous reste de la place%0D%0A%0D%0A(Merci de compléter les dates souhaitées et d'indiquer vos informations personnelles : nom, prénom, âge, numéro de téléphone)%0D%0A%0D%0ACordialement"
->
-  Réserver un cours d&apos;essai
-</a>
+                  className={buttonClass}
+                  href="mailto:nathalyio@hotmail.com,garnierbd@gmail.com?subject=Demande de cours d'essai&body=Bonjour,%0D%0A%0D%0AJ'aimerais réserver un cours d'essai.%0D%0A%0D%0APour les cours avec Nathalie le mercredi :%0D%0A- Premier cours (18h20 – 19h35) : ____/____ si il vous reste de la place%0D%0A- 2e cours (19h45 – 21h00) : ____/____ si il vous reste de la place%0D%0A%0D%0APour les cours avec Bernard le lundi :%0D%0A- Premier cours (18h20 – 19h35) : ____/____ si il vous reste de la place%0D%0A- 2e cours (19h45 – 21h00) : ____/____ si il vous reste de la place%0D%0A%0D%0A(Merci de compléter les dates souhaitées et d'indiquer vos informations personnelles : nom, prénom, âge, numéro de téléphone)%0D%0A%0D%0ACordialement"
+                >
+                  Réserver un cours d&apos;essai
+                </a>
                 
                 <a
                   className={buttonClass}
@@ -212,7 +207,7 @@ export default function Home() {
                   img: '/Bernard.png',
                   email: 'garnierbd@gmail.com',
                   phone: '06 95 31 10 88',
-                  bio: "Enseignant de yoga formé à l’enseignement de Sri Mahesh au sein de la FFHY, Bernard pratique le Hatha Yoga depuis 2011, année où il débute comme élève à l’association Les Ailes. Depuis 2021, il enseigne en région lyonnaise, dans un environnement respectueux du rythme et des capacités de chacun."
+                  bio: "Enseignant de yoga formé à l'enseignement de Sri Mahesh au sein de la FFHY, Bernard pratique le Hatha Yoga depuis 2011, année où il débute comme élève à l'association Les Ailes. Depuis 2021, il enseigne en région lyonnaise, dans un environnement respectueux du rythme et des capacités de chacun."
                 },
               ].map((prof) => (
                 <div
@@ -290,9 +285,16 @@ export default function Home() {
                       </div>
                     </div>
 
-                    <a href={prof.name === 'Bernard Garnier' ? '/bernard' : '#'} className={buttonClass}>
-                   En savoir plus
-                      </a>      
+                    {/* ✅ CORRECTION CRITIQUE : Remplacer <a href> par <Link> */}
+                    {prof.name === 'Bernard Garnier' ? (
+                      <Link href="/bernard" className={buttonClass}>
+                        En savoir plus
+                      </Link>
+                    ) : (
+                      <div className={`${buttonClass} opacity-50 cursor-not-allowed`}>
+                        Bientôt disponible
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -347,12 +349,8 @@ export default function Home() {
             </div>
           </div>
         </div>
-
-        {/* Supprimez cette div qui créait un espace vide */}
-        {/* <div style={{ height: '100vh' }} /> */}
       </main>
       
-   
       <Footer />
     </>
   );

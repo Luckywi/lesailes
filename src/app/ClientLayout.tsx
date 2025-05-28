@@ -11,7 +11,7 @@ interface ClientLayoutProps {
 export function ClientLayout({ children }: ClientLayoutProps) {
   return (
     <>
-      {/* Scène 3D globale - chargée une seule fois */}
+      {/* Scène 3D globale - chargée une seule fois et persistante */}
       <ThreeScene 
         modelPath="/Peacock.glb"
         startZ={0.15}
