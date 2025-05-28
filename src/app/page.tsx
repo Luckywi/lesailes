@@ -18,7 +18,7 @@ export default function Home() {
       <ThreeScene modelPath="/Peacock.glb" />
       
       {/* Contenu défilable */}
-      <main className="relative z-10 flex flex-col items-center text-white">
+      <main className="relative flex flex-col items-center text-white" style={{ zIndex: 10 }}>
         {/* Overlay pour améliorer la lisibilité - RÉDUIT pour plus de luminosité */}
         <div className="fixed inset-0"></div>
         

@@ -70,7 +70,7 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({ modelPath }) => {
     // 7. Appel initial pour prendre en compte scrollY = 0
     updateZoom()
 
-    // 8. Boucle d’animation
+    // 8. Boucle d'animation
     const animate = () => {
       requestAnimationFrame(animate)
       // if (model) model.rotation.y += 0.005  // si tu veux tourner doucement
@@ -95,7 +95,8 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({ modelPath }) => {
         left: 0,
         width: '100vw',
         height: '100vh',
-        zIndex: -1,
+        zIndex: 1, // Changé de -1 à 1
+        pointerEvents: 'none', // Les clics passent à travers
       }}
     />
   )
