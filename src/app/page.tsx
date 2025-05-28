@@ -27,7 +27,7 @@ export default function Home() {
                       alt={"Logo les Ailes Hatha Yoge Lyon 6"}
                       width={800}
                       height={400}
-                      className="w-1/3 h-1/3 object-cover"
+                      className="w-2/3 h-2/3 object-cover mb-8"
                     />
 
                 <h2 className='font-bold'>COURS DE HATHA YOGA À LYON 6</h2>
@@ -308,14 +308,24 @@ export default function Home() {
             </div>
           </div>
 
-          {/* L'approche "Les Ailes" */}
-          <div className="bg-black/25 backdrop-blur-sm rounded-2xl p-8 w-full mb-6">
-            <div className="text-center mb-10">
-              <h3 className="text-3xl font-bold uppercase tracking-wide">
-                L&apos;approche &quot;Les Ailes&quot;
-              </h3>
-              <div className="mt-3 h-px w-16 bg-white/30 mx-auto"></div>
-            </div>
+<div className="bg-black/25 backdrop-blur-sm rounded-2xl p-8 w-full mb-6">
+  <div className="text-center mb-10">
+    {/* Titre avec logo sur la même ligne */}
+    <div className="flex items-center justify-center gap-4">
+      <h3 className="text-3xl font-bold uppercase tracking-wide">
+        L&apos;approche
+      </h3>
+      <Image
+        src={"/les-ailes-logo.png"}
+        alt={"Logo les Ailes Hatha Yoga Lyon 6"}
+        width={800}
+        height={300}
+        className="w-28 h-28 object-contain"
+      />
+    </div>
+    {/* Ligne décorative conservée */}
+    <div className="mt-3 h-px w-16 bg-white/30 mx-auto"></div>
+  </div>
             
             <div className="space-y-8 mb-10">
               <div className="flex items-start">

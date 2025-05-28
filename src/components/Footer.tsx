@@ -1,5 +1,6 @@
 // src/components/Footer.tsx
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface FooterProps {
   className?: string;
@@ -8,13 +9,16 @@ interface FooterProps {
 export const Footer: React.FC<FooterProps> = ({ className = "" }) => {
   return (
     <footer className={`relative z-10 w-full text-center py-12 ${className}`}>
-      <div className="bg-black/30 backdrop-blur-sm rounded-2xl mx-4 p-8 max-w-md mx-auto border border-white/10">
+      <div className="bg-black/30 flex flex-col items-center text-center backdrop-blur-sm rounded-2xl mx-4 p-8 max-w-md mx-auto border border-white/10">
         
         {/* Titre principal */}
-        <h2 className="text-3xl font-bold text-white mb-6 tracking-wide">
-          Les Ailes
-        </h2>
-        
+         <Image
+                              src={"/les-ailes-logo.png"}
+                              alt={"Logo les Ailes Hatha Yoge Lyon 6"}
+                              width={800}
+                              height={400}
+                              className="w-1/3 h-1/3 object-cover mb-8"
+                            />
         {/* Adresse */}
         <div className="text-white/90 mb-6 space-y-1">
           <p className="text-sm">13 rue Curie, 69006 Lyon</p>

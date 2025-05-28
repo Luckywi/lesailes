@@ -67,7 +67,13 @@ export default function AdmClient() {
                   transition={{ delay: 0.2, duration: 0.5 }}
                 >
                   <div className="flex justify-center mb-4">
-                  <h2 className="text-2xl font-medium text-white text-center">Les Ailes</h2></div>
+                    <Image
+                                                src={"/les-ailes-logo.png"}
+                                                alt={"Logo les Ailes Hatha Yoge Lyon 6"}
+                                                width={800}
+                                                height={400}
+                                                className="w-1/3 h-1/3 object-cover mb-6"
+                                              /></div>
                   
                   <p className="text-white text-sm">
                     L&apos;association Les Ailes a choisi l&apos;agence web ADMLAB pour développer sa présence en ligne. 
