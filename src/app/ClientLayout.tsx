@@ -1,4 +1,4 @@
-// src/app/ClientLayout.tsx
+// src/app/ClientLayout.tsx (version avec priorité 3D)
 'use client'
 
 import { ReactNode } from 'react'
@@ -11,7 +11,7 @@ interface ClientLayoutProps {
 export function ClientLayout({ children }: ClientLayoutProps) {
   return (
     <>
-      {/* Scène 3D globale - chargée une seule fois et persistante */}
+      {/* Scène 3D globale - PRIORITÉ ABSOLUE */}
       <ThreeScene 
         modelPath="/Peacock.glb"
         startZ={0.15}
