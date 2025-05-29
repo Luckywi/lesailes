@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Allow: /nathalie
+Allow: /bernard
+Disallow: /api/
+Disallow: /_next/
+Disallow: /static/
+
+Sitemap: https://lesailes.fr/sitemap.xml

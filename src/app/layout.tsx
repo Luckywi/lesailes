@@ -1,4 +1,4 @@
-// src/app/layout.tsx - Version corrigée avec vos assets existants
+// src/app/layout.tsx - Version finale optimisée
 import './globals.css'
 import { ReactNode } from 'react'
 import { ClientLayout } from './ClientLayout'
@@ -8,11 +8,10 @@ interface RootLayoutProps {
   children: ReactNode
 }
 
+// ✅ GARDE ton metadataBase - c'est important pour les autres métadonnées
 export const metadata: Metadata = {
   metadataBase: new URL('https://lesailes.fr'),
 }
-
-
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
@@ -34,8 +33,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         
-        {/* PRELOAD de vos assets existants */}
-        <link rel="preload" href="/Peacock.glb" as="fetch" crossOrigin="anonymous" />
+        {/* PRELOAD critique pour performance */}
         <link rel="preload" href="/les-ailes-logo.png" as="image" />
         
         {/* DNS prefetch */}
