@@ -1,4 +1,4 @@
-// next.config.ts - Ajoutez cette configuration
+// next.config.ts - Configuration corrigée
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -26,16 +26,15 @@ const nextConfig: NextConfig = {
     ]
   },
   
-  // Optimisations diverses
-  experimental: {
-    optimizeCss: true,
-  },
-  
-  // Configuration des images
+  // Configuration des images optimisée
   images: {
     formats: ['image/webp', 'image/avif'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
   },
+  
+  // Optimizations de base
+  compress: true,
+  poweredByHeader: false,
 };
 
 export default nextConfig;
