@@ -1,3 +1,4 @@
+// src/app/sitemap.ts - Version corrigée
 import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {

@@ -12,6 +12,8 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://lesailes.fr'),
 }
 
+
+
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="fr">
